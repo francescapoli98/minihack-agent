@@ -2,7 +2,7 @@
 
 ## Struttura progetto
 
-Inanto sappiamo che:
+Intanto sappiamo che:
 - Ci piace l'idea di fare 2 agenti (algoritmi comparati ✔️)
 ### Proposta 1
 - Agente che gioca e apprende la mappa (sconosciuta) e deve reagire o evitare le trappole dell'altro
