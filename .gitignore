@@ -1,2 +1,9 @@
-# Ignora tutti i file .env
+# Ignora i file di ambiente
 .env
+env
+
+# ignora i file di checkpoints di jupyter
+.ipynb_checkpoints
+
+# ignora file di note
+note.txt
