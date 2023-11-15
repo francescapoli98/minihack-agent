@@ -78,33 +78,3 @@ def set_enemy(game_map: np.ndarray):#coords: Tuple[int, int]
     #print(game_map[x[0],y[0]],'\n\n\n\n')
     return game_map
     #da usare: get_valid_moves 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
