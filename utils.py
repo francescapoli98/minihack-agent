@@ -1,7 +1,10 @@
 import numpy as np
 import math
-
-from typing import Tuple, List
+import IPython.display as display
+import time
+import matplotlib.pyplot as plt
+from matplotlib.image import AxesImage 
+from typing import Callable,Tuple, List
 
 def get_player_location(game_map: np.ndarray, symbol : str = "@") -> Tuple[int, int]:
     x, y = np.where(game_map == ord(symbol))
@@ -59,6 +62,26 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
     
     return actions
 
+def get_best_move(game_map: np.ndarray, current_position: Tuple[int, int], heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int]) -> Tuple[int, int]:
+    moves = get_valid_moves(game_map,current_position)
+    min = float('inf')
+    coord = (0,0)
+    for move in moves: #scelgo quella che minimizza l'euristica
+        md = heuristic(move, get_target_location(game_map))
+        if md < min:
+            min = md
+            coord = move
+    return coord
+
+def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
+    display.display(plt.gcf())
+    time.sleep(0.5)
+    display.clear_output(wait=True)
+    image.set_data(game_map['pixel'][:, 300:975])      
+    #fine stampa
+    #aggiorno game_map
+    return game_map["chars"]
+
 def euclidean_distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> float:
     x1, y1 = point1
     x2, y2 = point2
@@ -69,12 +92,5 @@ def manhattan_distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> int:
     x2, y2 = point2
     return abs(x1 - x2) + abs(y1 - y2)
 
-#########################################
-def set_enemy(game_map: np.ndarray):#coords: Tuple[int, int]
-    x, y = np.where(game_map == ord('.')) #coordinates of an empty cell
-    #print(game_map[x[0],y[0]],'\n\n\n\n')
-    #np.insert([x,y], 'F')
-    game_map[x[0],y[0]] = ord('F')
-    #print(game_map[x[0],y[0]],'\n\n\n\n')
-    return game_map
-    #da usare: get_valid_moves 
+
+    
