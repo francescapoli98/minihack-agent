@@ -35,6 +35,18 @@ def get_valid_moves(game_map: np.ndarray, current_position: Tuple[int, int]) -> 
     if x - 1 > 0 and not is_wall(game_map[x-1, y]):
         valid.append((x-1, y))
 
+    if x - 1 > 0 and y - 1 > 0 and not is_wall(game_map[x-1, y-1]):
+        valid.append((x-1, y-1))
+
+    if x + 1 > 0 and y + 1 > 0 and not is_wall(game_map[x+1, y+1]):
+        valid.append((x+1, y+1))
+
+    if x + 1 > 0 and y - 1 > 0 and not is_wall(game_map[x+1, y-1]):
+        valid.append((x+1, y-1))
+
+    if x - 1 > 0 and y + 1 > 0 and not is_wall(game_map[x-1, y+1]):
+        valid.append((x-1, y+1))
+
     return valid
 
 def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> List[int]:
@@ -42,7 +54,11 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
         "N": 0,
         "E": 1,
         "S": 2,
-        "W": 3
+        "W": 3,
+        "NE": 4,
+        "SE": 5,
+        "SW": 6,
+        "NW": 7,
     }
     actions = []
     x_s, y_s = start
@@ -55,19 +71,31 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
             if x_s > x:
                 actions.append(action_map["N"])
             else: actions.append(action_map["S"])
+        elif x_s > x and y_s < y:
+            actions.append(action_map["NE"])
+        elif x_s < x and y_s < y:
+            actions.append(action_map["SE"])
+        elif x_s < x and y_s > y:
+            actions.append(action_map["SW"])
+        elif x_s > x and y_s > y:
+            actions.append(action_map["NW"])
         else:
-            raise Exception("x and y can't change at the same time. oblique moves not allowed!")
+            raise Exception("Error")
         x_s = x
         y_s = y
     
     return actions
 
-def get_best_move(game_map: np.ndarray, current_position: Tuple[int, int], heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int]) -> Tuple[int, int]:
+def get_best_move(game_map: np.ndarray, 
+                  current_position: Tuple[int, int],
+                  target_position: Tuple[int, int],
+                  heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
+                 ) -> Tuple[int, int]: 
     moves = get_valid_moves(game_map,current_position)
     min = float('inf')
     coord = (0,0)
     for move in moves: #scelgo quella che minimizza l'euristica
-        md = heuristic(move, get_target_location(game_map))
+        md = heuristic(move, target_position)
         if md < min:
             min = md
             coord = move
