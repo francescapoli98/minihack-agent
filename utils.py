@@ -14,6 +14,14 @@ def get_target_location(game_map: np.ndarray, symbol : str = ">") -> Tuple[int, 
     x, y = np.where(game_map == ord(symbol))
     return (x[0], y[0])
 
+def get_monster_location(game_map: np.ndarray) -> List[Tuple[int, int]]:
+    symbols_monster = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQXYZ':;&~_]"
+    coord_monsters = []
+    for symbol in symbols_monster:
+        x, y = np.where(game_map == ord(symbol))
+        coord_monsters.extend(list(zip(x, y)))
+    return coord_monsters
+
 def is_wall(position_element: int) -> bool:
     obstacles = "|- "
     return chr(position_element) in obstacles
@@ -88,14 +96,14 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
 
 def get_best_move(game_map: np.ndarray, 
                   current_position: Tuple[int, int],
-                  target_position: Tuple[int, int],
+                  end_target: Tuple[int, int],
                   heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
                  ) -> Tuple[int, int]: 
     moves = get_valid_moves(game_map,current_position)
     min = float('inf')
     coord = (0,0)
     for move in moves: #scelgo quella che minimizza l'euristica
-        md = heuristic(move, target_position)
+        md = heuristic(move, end_target)      # deve prendere come parametri: (game_map, move, end_target, hp_player)
         if md < min:
             min = md
             coord = move
