@@ -66,7 +66,7 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
         "NE": 4,
         "SE": 5,
         "SW": 6,
-        "NW": 7,
+        "NW": 7
     }
     actions = []
     x_s, y_s = start
@@ -127,6 +127,5 @@ def manhattan_distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> int:
     x1, y1 = point1
     x2, y2 = point2
     return abs(x1 - x2) + abs(y1 - y2)
-
 
     
