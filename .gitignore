@@ -7,3 +7,6 @@ env
 
 # ignora file di note
 note.txt
+
+# ignora i file di cache
+__pycache__
