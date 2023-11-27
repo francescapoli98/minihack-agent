@@ -10,3 +10,6 @@ note.txt
 
 # ignora i file di cache
 __pycache__
+
+# ignora i file di configurazione di vscode
+.vscode
