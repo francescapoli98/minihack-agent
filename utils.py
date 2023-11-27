@@ -1,10 +1,19 @@
 import numpy as np
+import gym
 import math
 import IPython.display as display
 import time
 import matplotlib.pyplot as plt
 from matplotlib.image import AxesImage 
 from typing import Callable,Tuple, List
+from nle import nethack
+from minihack import LevelGenerator
+
+MOVEMENT_ACTIONS = tuple(nethack.CompassDirection)
+OTHER_ACTIONS = MOVEMENT_ACTIONS + ( 
+                nethack.Command.PICKUP,
+                nethack.Command.WIELD 
+                )
 
 def get_player_location(game_map: np.ndarray, symbol : str = "@") -> Tuple[int, int]:
     x, y = np.where(game_map == ord(symbol))
@@ -111,7 +120,7 @@ def get_best_move(game_map: np.ndarray,
 
 def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
     display.display(plt.gcf())
-    time.sleep(0.5)
+    time.sleep(0.2)
     display.clear_output(wait=True)
     image.set_data(game_map['pixel'][:, 300:975])      
     #fine stampa
@@ -128,4 +137,33 @@ def manhattan_distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> int:
     x2, y2 = point2
     return abs(x1 - x2) + abs(y1 - y2)
 
-    
+def pickup():
+    env.step(8) #pickup
+
+def wield(): # Guardare handsonsearch2
+    obs, _, _, _ = env.step(9) # wield
+    # Example message:
+    # What do you want to eat?[g or *]
+    message = bytes(obs['message']).decode('utf-8').rstrip('\x00')
+    weapon_char = message.split('[')[1][0] # Because of the way the message in NetHack works
+    env.step(env.actions.index(ord(weapon_char))) # NOT WORKING
+
+def generate_map():
+    lvl_gen = LevelGenerator(w=15, h=15)
+    lvl_gen.add_object("dagger", ")")
+    #lvl_gen.add_monster("goblin")
+    #lvl_gen.add_monster("goblin")
+    lvl_gen.add_monster("goblin")
+    lvl_gen.add_goal_pos()
+    return lvl_gen
+
+def generate_env():
+    env =  gym.make("MiniHack-Skill-Custom-v0", 
+               observation_keys=("chars", "pixel"),
+               des_file = map.get_des(),
+               actions = OTHER_ACTIONS,
+               ) 
+    return env
+
+map = generate_map()
+env = generate_env()
