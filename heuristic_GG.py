@@ -3,15 +3,11 @@ from utils import *
 import math
 from typing import Tuple
 
-
-RAGGIO_DI_VISIONE = 4
-ETA_DISTANCE_TARGET = 0.1
-ETA_DISTANCE_PLAYER = 0.1
+NEAR_MONSTERS_RANGE = 2
+ETA_DISTANCE_TARGET = 0.5
 
 
 def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_player: int):
-    if move == end_target:
-        return math.inf
 
     # imposta il target uguale al target finale di default
     target = end_target
@@ -19,6 +15,9 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
     # prende la posizione di tutti i mostri presenti nella mappa
     list_monsters = get_monster_location(game_map)
 
+    if move == end_target and len(list_monsters)!=0:
+        return math.inf
+    
     # se ci sono mostri nella mappa, individua fra essi il target migliore
     if len(list_monsters) > 0:
         info_monsters = []
@@ -27,24 +26,36 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
                 {
                     "position": monster,
                     "distance": euclidean_distance(move, monster),
-                    "path_activated_monsters": path_activated_monsters(game_map, move, monster, list_monsters)
+                    "near_monsters": near_monsters(game_map,monster,list_monsters)
                 }
             )
 
         min = math.inf
         for monster in info_monsters:
-            weight = monster["path_activated_monsters"] * ( monster["distance"] * ETA_DISTANCE_TARGET )
+            weight = monster["near_monsters"] * ( monster["distance"] * ETA_DISTANCE_TARGET )
 
             if weight < min:
                 min = weight
                 target = monster["position"]
 
-    return euclidean_distance(move, target)
+    return score(game_map,move,target,list_monsters)
 
 
 
+def score(game_map: np.ndarray,player_position:Tuple[int, int],target:Tuple[int, int],list_monsters:[Tuple[int, int]]):
+    if len(list_monsters)==0:
+        return euclidean_distance(player_position,target)
+    
+    sum=1
+    for monster in list_monsters:
+        if monster!=target:
+            sum+=euclidean_distance(player_position,monster)
+    return euclidean_distance(player_position,target)-(-sum/len(list_monsters)-1)
+        
 
-def activated_monsters(game_map: np.ndarray, cell: Tuple[int, int], list_monsters: [Tuple[int, int]]):
+
+
+def near_monsters(game_map: np.ndarray, cell: Tuple[int, int], list_monsters: [Tuple[int, int]]):
     """
     Counts the number of monsters within the given range of vision.
 
@@ -59,19 +70,12 @@ def activated_monsters(game_map: np.ndarray, cell: Tuple[int, int], list_monster
     num_monsters = 0
 
     for monster in list_monsters:
-        if euclidean_distance(cell, monster) <= RAGGIO_DI_VISIONE:
+        if euclidean_distance(cell, monster) <= NEAR_MONSTERS_RANGE:
             num_monsters += 1
 
     return num_monsters
 
 
-def path_activated_monsters(game_map: np.ndarray, cell: Tuple[int, int], target: Tuple[int, int], list_monsters: [Tuple[int, int]], distance: int =1):
-    if cell==target:
-        return 0
-    
-    next_cell = get_best_move_euclidean(game_map, cell, target)
-
-    return path_activated_monsters(game_map, next_cell, target, list_monsters, (distance+ETA_DISTANCE_TARGET)) + (activated_monsters(game_map, cell, list_monsters) / distance)
 
 
 

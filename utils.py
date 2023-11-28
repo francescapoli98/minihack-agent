@@ -107,12 +107,13 @@ def get_best_move(game_map: np.ndarray,
                   current_position: Tuple[int, int],
                   end_target: Tuple[int, int],
                   heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
+                  hp: int
                  ) -> Tuple[int, int]: 
     moves = get_valid_moves(game_map,current_position)
     min = float('inf')
     coord = (0,0)
     for move in moves: #scelgo quella che minimizza l'euristica
-        md = heuristic(move, end_target)      # deve prendere come parametri: (game_map, move, end_target, hp_player)
+        md = heuristic(game_map, move, end_target, hp)  
         if md < min:
             min = md
             coord = move
@@ -120,7 +121,7 @@ def get_best_move(game_map: np.ndarray,
 
 def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
     display.display(plt.gcf())
-    time.sleep(0.2)
+    time.sleep(0.5)
     display.clear_output(wait=True)
     image.set_data(game_map['pixel'][:, 300:975])      
     #fine stampa
