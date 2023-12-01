@@ -31,6 +31,14 @@ def get_monster_location(game_map: np.ndarray) -> List[Tuple[int, int]]:
         coord_monsters.extend(list(zip(x, y)))
     return coord_monsters
 
+def get_weapon_location(game_map: np.ndarray) -> List[Tuple[int, int]]:
+    weapons_symbols = "|/)["
+    coord_weapons = []
+    for symbol in weapons_symbols:
+        x, y = np.where(game_map == ord(symbol))
+        coord_weapons.extend(list(zip(x, y)))
+    return coord_weapons
+
 def is_wall(position_element: int) -> bool:
     obstacles = "|- "
     return chr(position_element) in obstacles
@@ -121,7 +129,7 @@ def get_best_move(game_map: np.ndarray,
 
 def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
     display.display(plt.gcf())
-    time.sleep(0.5)
+    time.sleep(0.7)
     display.clear_output(wait=True)
     image.set_data(game_map['pixel'][:, 300:975])      
     #fine stampa
@@ -152,15 +160,15 @@ def wield(): # Guardare handsonsearch2
 def generate_map():
     lvl_gen = LevelGenerator(w=15, h=15)
     lvl_gen.add_object("dagger", ")")
-    #lvl_gen.add_monster("goblin")
-    #lvl_gen.add_monster("goblin")
-    lvl_gen.add_monster("goblin")
+    lvl_gen.add_monster("kobold", "k")
+    lvl_gen.add_monster("kobold", "k")
+    lvl_gen.add_monster("kobold", "k")
     lvl_gen.add_goal_pos()
     return lvl_gen
 
 def generate_env():
     env =  gym.make("MiniHack-Skill-Custom-v0", 
-               observation_keys=("chars", "pixel"),
+               observation_keys=("chars", "pixel", "blstats"),
                des_file = map.get_des(),
                actions = OTHER_ACTIONS,
                ) 
