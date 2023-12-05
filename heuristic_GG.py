@@ -223,7 +223,7 @@ def is_trap(current_position: Tuple[int, int], info_monsters: List[MonsterInfo])
             return True
 
     # Controlla l'intervallo tra l'ultimo angolo e il primo
-    if angles[0] + 2 * math.pi - angles[-1] > TRAP_RANGE:
+    if abs(angles[0] + 2 * math.pi - angles[-1]) > TRAP_RANGE:
         count += 1
 
     return count >= 2
