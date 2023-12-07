@@ -1,3 +1,10 @@
+import numpy as np
+from utils import *
+
+# This heuristic gives priority to the weapons first, then to the monsters
+# The agent will try to pick up the weapons first, then it will try to kill the monsters
+# The agent will try to reach the exit only if there are no weapons and no monsters in the room
+
 def heuristic_fd(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_player: int):
     """
     Calcola un'euristica personalizzata tenendo conto della sequenza di azioni: raccogliere l'arma, uccidere i mostri e raggiungere l'uscita.
