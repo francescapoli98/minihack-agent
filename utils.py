@@ -147,15 +147,20 @@ def manhattan_distance(point1: Tuple[int, int], point2: Tuple[int, int]) -> int:
     return abs(x1 - x2) + abs(y1 - y2)
 
 def pickup():
-    env.step(8) #pickup
+    env.step(8) # 8 = pickup the item
 
-def wield(): # Guardare handsonsearch2
-    obs, _, _, _ = env.step(9) # wield
-    # Example message:
-    # What do you want to eat?[g or *]
+def wield(): # Tested and working
+    obs, _, _, _ = env.step(9) # 9 = wield
+
+    # Example message: What do you want to wield? [- abf or ?*]
     message = bytes(obs['message']).decode('utf-8').rstrip('\x00')
-    weapon_char = message.split('[')[1][0] # Because of the way the message in NetHack works
-    env.step(env.actions.index(ord(weapon_char))) # NOT WORKING
+    #print("Message: ", message) # debug
+    # split -> ['What do you want to wield? ', ' abf or ?*']
+    # we get the second part (index 1), then we get the third char of the second part
+    # in this case "b" is the dagger (index 3)
+    weapon_char = message.split('[')[1][3]
+    #print("Weapon char: ", weapon_char) # debug
+    env.step(env.actions.index(ord(weapon_char))) # select weapon from inventory
 
 def generate_map():
     lvl_gen = LevelGenerator(w=15, h=15)
@@ -168,7 +173,7 @@ def generate_map():
 
 def generate_env():
     env =  gym.make("MiniHack-Skill-Custom-v0", 
-               observation_keys=("chars", "pixel", "blstats"),
+               observation_keys=("chars", "pixel", "blstats", "message"), 
                des_file = map.get_des(),
                actions = OTHER_ACTIONS,
                ) 
