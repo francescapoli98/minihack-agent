@@ -12,7 +12,8 @@ from minihack import LevelGenerator
 MOVEMENT_ACTIONS = tuple(nethack.CompassDirection)
 OTHER_ACTIONS = MOVEMENT_ACTIONS + ( 
                 nethack.Command.PICKUP,
-                nethack.Command.WIELD 
+                nethack.Command.WIELD,
+                nethack.Command.FIRE
                 )
 
 def get_player_location(game_map: np.ndarray, symbol : str = "@") -> Tuple[int, int]:
@@ -32,7 +33,7 @@ def get_monster_location(game_map: np.ndarray) -> List[Tuple[int, int]]:
     return coord_monsters
 
 def get_weapon_location(game_map: np.ndarray) -> List[Tuple[int, int]]:
-    weapons_symbols = "|/)["
+    weapons_symbols = ")"
     coord_weapons = []
     for symbol in weapons_symbols:
         x, y = np.where(game_map == ord(symbol))
@@ -155,12 +156,15 @@ def wield(): # Tested and working
     # Example message: What do you want to wield? [- abf or ?*]
     message = bytes(obs['message']).decode('utf-8').rstrip('\x00')
     #print("Message: ", message) # debug
-    # split -> ['What do you want to wield? ', ' abf or ?*']
-    # we get the second part (index 1), then we get the third char of the second part
-    # in this case "b" is the dagger (index 3)
-    weapon_char = message.split('[')[1][3]
+    # split -> ['What do you want to wield? ', '- abf or ?*']
+    # we get the second part (index 1), then we get the fourth char of the second part
+    # in this case "f" is the dagger (index 4)
+    weapon_char = message.split('[')[1][4]
     #print("Weapon char: ", weapon_char) # debug
     env.step(env.actions.index(ord(weapon_char))) # select weapon from inventory
+    # New message after wielding: f - a dagger (weapon in hand). Uncomment to see it.
+    #message = bytes(obs['message']).decode('utf-8').rstrip('\x00') #debug
+    #print("Message: ", message) # debug
 
 def generate_map():
     lvl_gen = LevelGenerator(w=15, h=15)
