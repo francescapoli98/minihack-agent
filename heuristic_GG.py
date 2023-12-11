@@ -8,12 +8,22 @@ ETA_NEAR_MONSTERS_TARGET = 0.5
 DISTANCE_MIN = 1
 DISTANCE_MAX = 18
 NEAR_MONSTER_MIN = 1
+# valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
 BRAVE_PLAYER = 0
-MIN_HP_PLAYER = 1
-MAX_HP_PLAYER = 12  #! da aggiungere come parametro nel report e in heuristics
-ANGLES = [(1,30),(1,49),(20,30),(20,49)]   
+
+# posizioni degli angoli della mappa  
+ANGLES = [(1,30),(1,49),(20,30),(20,49)]
+
+# range angolare per cui si considera che il player è circondato
 TRAP_RANGE=math.pi/4 #! da definire
+
+# distanza massima per cui si considerano i mostri attorno al player
 TRAP_DISTANCE=4 #! da definire
+
+
+
+
+
 
 # class MonsterInfo
 from typing import List, Tuple
@@ -60,7 +70,7 @@ class MonsterInfo:
 
 
 
-def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_player: int):
+def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int):
 
     # imposta il target uguale al target finale di default (scale della mappa)
     target = end_target
@@ -68,7 +78,6 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
     # prende la posizione di tutti i mostri presenti nella mappa
     list_monsters = get_monster_location(game_map)
     current_position = get_player_location(game_map)
-
 
     # se la cella considerata è il target finale e ci sono mostri nella mappa, ritorna infinito (non è possibile raggiungere il target finale se ci sono mostri)
     if move == end_target and len(list_monsters)!=0:
@@ -79,19 +88,13 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
         info_monsters.append(
             MonsterInfo(monster, euclidean_distance(current_position, monster), near_monsters(monster,list_monsters))
         )
+
+
     # controlla se il player ha abbastanza vita per combattere un mostro
-    if hp_player <= (12-BRAVE_PLAYER):
-        sum = 0
-        for monster in list_monsters:
-            sum -= euclidean_distance(move, monster)
-
-        sum2 = 0
-        for angle in ANGLES:
-            if -euclidean_distance(move, angle) < sum2:
-                sum2 = -euclidean_distance(move, angle)
-
-        #strtegia di fuga in caso l'agente è circondato dai mostri (controllare il caso in cui il player è circondato da 1 mostro nell'angolo)
+    if BRAVE_PLAYER <= hp_rate and len(list_monsters) > 0:
+        #strategia di fuga in caso l'agente è circondato dai mostri (controllare il caso in cui il player è circondato da 1 mostro nell'angolo)
         if is_trap(current_position,info_monsters):
+            print("trap",end="")
             max_monsters_distance=0
             for angle in ANGLES:
                 new_distance=0
@@ -102,17 +105,24 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
                     target = angle
             return score(move,target,info_monsters)
         
-        return sum - sum2
+        near_monster = nearest_monster(info_monsters)
+        if near_monster.distance < 3:
+            print("near monster", end="")
+            return -euclidean_distance(move, near_monster.position)
+
+
+        # cerca di scappare dai mostri evitando di restare intrappolato in un angolo della mappa
+        sum = 0
+        for monster in list_monsters:
+            sum -= euclidean_distance(move, monster) * ((DISTANCE_MAX - euclidean_distance(current_position, monster)))
+        # contrapporre la massimizzazione della distanza dei mostri dal player con la massimizzazione della distanza dall'angolo più vicino
+        return sum 
 
     
     # se ci sono mostri nella mappa, individua fra essi il target migliore
-    
     if len(list_monsters) > 0:
         # crea una lista di oggetti MonsterInfo, che contengono le informazioni di ogni mostro (posizione, distanza dal player, numero di mostri vicini)
-
-
         NEAR_MONSTER_MAX = len(list_monsters)
-
 
         # scelgo il mostro con peso migliore (peso = distanza e numero di mostri vicini)
         #print("cell", current_position)
@@ -129,6 +139,17 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
 
     return score(move,target,info_monsters)
 
+
+
+def nearest_monster(info_monsters: [MonsterInfo]) -> MonsterInfo: 
+    min = math.inf
+    near_monster = None
+    for info_monster in info_monsters:
+        if info_monster.distance < min:
+            min = info_monster.distance
+            near_monster = info_monster
+
+    return near_monster
 
 
 def normalize(value: int, min_val: int, max_val: int) -> float:
@@ -201,8 +222,6 @@ def is_trap(current_position: Tuple[int, int], info_monsters: List[MonsterInfo])
     for monster in info_monsters:
         if monster.distance <= TRAP_DISTANCE:
             info_monsters_reduced.append(monster)
-        if monster.distance==1 and current_position in ANGLES: #!da controllare
-            return True
         
     # Verifica che ci siano almeno min_monsters mostri nella lista
     if len(info_monsters_reduced) < 2:
