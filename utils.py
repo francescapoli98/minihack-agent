@@ -196,18 +196,18 @@ def generate_map():
     lvl_gen.set_start_pos((6, 2))
 
     # dagger position
-    lvl_gen.add_object("dagger", ")", (5,8))
+    lvl_gen.add_object("dagger", ")", (18,18))
 
     # group of monster low right
-    lvl_gen.add_monster("kobold", "k", (21,18))
-    lvl_gen.add_monster("kobold", "k", (22,18))
+    lvl_gen.add_monster("kobold zombie", "Z", (21,18))
+    lvl_gen.add_monster("kobold zombie", "Z", (22,18))
 
     # group of monster high right
-    lvl_gen.add_monster("kobold", "k", (22,1))
-    lvl_gen.add_monster("kobold", "k", (22,2))
+    lvl_gen.add_monster("kobold zombie", "Z", (22,1))
+    lvl_gen.add_monster("kobold zombie", "Z", (22,2))
 
     # single monster low left
-    lvl_gen.add_monster("kobold", "k", (5,18))
+    lvl_gen.add_monster("kobold zombie", "Z", (5,18))
     lvl_gen.add_goal_pos((16,12))
     
     return lvl_gen

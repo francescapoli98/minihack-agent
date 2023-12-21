@@ -9,7 +9,7 @@ DISTANCE_MIN = 1
 DISTANCE_MAX = 18
 NEAR_MONSTER_MIN = 1
 # valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
-BRAVE_PLAYER = 0.2
+BRAVE_PLAYER = 1
 
 # posizioni degli angoli della mappa  
 ANGLES = [(1,30),(1,49),(20,30),(20,49)]
@@ -70,7 +70,7 @@ class MonsterInfo:
 
 
 
-def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int,weapon_in_hand: bool) -> float:
+def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int, weapon_in_hand: bool) -> float:
 
     # imposta il target uguale al target finale di default (scale della mappa)
     target = end_target
@@ -78,6 +78,7 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
     # prende la posizione di tutti i mostri presenti nella mappa
     list_monsters = get_monster_location(game_map)
     current_position = get_player_location(game_map)
+    weapons = get_weapon_location(game_map)
 
     # se la cella considerata è il target finale e ci sono mostri nella mappa, ritorna infinito (non è possibile raggiungere il target finale se ci sono mostri)
     if move == end_target and len(list_monsters)!=0:
@@ -130,21 +131,28 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
     
     # se ci sono mostri nella mappa, individua fra essi il target migliore
     if len(list_monsters) > 0:
-        # crea una lista di oggetti MonsterInfo, che contengono le informazioni di ogni mostro (posizione, distanza dal player, numero di mostri vicini)
-        NEAR_MONSTER_MAX = len(list_monsters)
+        # caso in cui prende l'arma
+        if not weapon_in_hand and len(weapons) > 0:
+            target = best_weapon(current_position, weapons)
 
-        # scelgo il mostro con peso migliore (peso = distanza e numero di mostri vicini)
-        #print("cell", current_position)
-        min = math.inf
-        for monster in info_monsters:
-            weight = (normalize(monster.near_monsters, NEAR_MONSTER_MIN, NEAR_MONSTER_MAX) * ETA_NEAR_MONSTERS_TARGET) + normalize(monster.distance, DISTANCE_MIN, DISTANCE_MAX)
+        else:
+            # caso in cui combatte i mostri
+            # crea una lista di oggetti MonsterInfo, che contengono le informazioni di ogni mostro (posizione, distanza dal player, numero di mostri vicini)
+            NEAR_MONSTER_MAX = len(list_monsters)
 
-            # setta come target il mostro che minimizza (distanza e numero di mostri vicini)
-            if weight < min:
-                min = weight
-                target = monster.position
-        #print("target", target)
-        #print("score", score(move,target,info_monsters))
+            # scelgo il mostro con peso migliore (peso = distanza e numero di mostri vicini)
+            #print("cell", current_position)
+            min = math.inf
+            for monster in info_monsters:
+                weight = (normalize(monster.near_monsters, NEAR_MONSTER_MIN, NEAR_MONSTER_MAX) * ETA_NEAR_MONSTERS_TARGET) + normalize(monster.distance, DISTANCE_MIN, DISTANCE_MAX)
+
+                # setta come target il mostro che minimizza (distanza e numero di mostri vicini)
+                if weight < min:
+                    min = weight
+                    target = monster.position
+            #print("target", target)
+            #print("score", score(move,target,info_monsters))
+          
 
     return score(move,target,info_monsters)
 
@@ -185,10 +193,13 @@ def score(move:Tuple[int, int],target:Tuple[int, int], info_monsters:[MonsterInf
         return euclidean_distance(move,target)
     
     sum=1
+    count=0
     for info_monster in info_monsters:
         if info_monster.position!=target:
             sum+=(DISTANCE_MAX-euclidean_distance(move,info_monster.position))
-    return math.ceil(euclidean_distance(move,target)) + (normalize(sum,0,(DISTANCE_MAX-1)*len(info_monsters)))                        
+            count+=1
+
+    return math.ceil(euclidean_distance(move,target)) + (normalize(sum,0,(DISTANCE_MAX-1)*count))                        
 
 
 def near_monsters(cell: Tuple[int, int], list_monsters: [Tuple[int, int]]):
@@ -252,3 +263,16 @@ def is_trap(current_position: Tuple[int, int], info_monsters: List[MonsterInfo])
         count += 1
 
     return count >= 2
+
+
+
+def best_weapon(current_position:Tuple[int, int], weapons:[Tuple[int, int]]):
+    min = math.inf
+    best_weapon = weapons[0]
+    for weapon in weapons:
+        distance = euclidean_distance(current_position, weapon)
+        if distance < min:
+            min = distance
+            best_weapon = weapon
+
+    return best_weapon
