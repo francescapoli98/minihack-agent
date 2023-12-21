@@ -116,13 +116,14 @@ def get_best_move(game_map: np.ndarray,
                   current_position: Tuple[int, int],
                   end_target: Tuple[int, int],
                   heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
-                  hp: int
+                  hp_percent: int,
+                  weapon_in_hand: bool
                  ) -> Tuple[int, int]: 
     moves = get_valid_moves(game_map,current_position)
     min = float('inf')
     coord = (0,0)
     for move in moves: #scelgo quella che minimizza l'euristica
-        md = heuristic(game_map, move, end_target, hp)  
+        md = heuristic(game_map, move, end_target, hp_percent, weapon_in_hand)
         if md < min:
             min = md
             coord = move
@@ -162,17 +163,53 @@ def wield(): # Tested and working
     weapon_char = message.split('[')[1][4]
     #print("Weapon char: ", weapon_char) # debug
     env.step(env.actions.index(ord(weapon_char))) # select weapon from inventory
-    # New message after wielding: f - a dagger (weapon in hand). Uncomment to see it.
+    # New message after wielding:  f- a dagger (weapon in hand). Uncomment to see it.
     #message = bytes(obs['message']).decode('utf-8').rstrip('\x00') #debug
     #print("Message: ", message) # debug
 
 def generate_map():
-    lvl_gen = LevelGenerator(w=15, h=15)
-    lvl_gen.add_object("dagger", ")")
-    lvl_gen.add_monster("kobold", "k")
-    lvl_gen.add_monster("kobold", "k")
-    lvl_gen.add_monster("kobold", "k")
-    lvl_gen.add_goal_pos()
+    map_layout = """
+    --------------------
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    |..................|
+    --------------------
+    """
+
+    lvl_gen = LevelGenerator(map = map_layout)
+    # starting position
+    lvl_gen.set_start_pos((6, 2))
+
+    # dagger position
+    lvl_gen.add_object("dagger", ")", (5,8))
+
+    # group of monster low right
+    lvl_gen.add_monster("kobold", "k", (21,18))
+    lvl_gen.add_monster("kobold", "k", (22,18))
+
+    # group of monster high right
+    lvl_gen.add_monster("kobold", "k", (22,1))
+    lvl_gen.add_monster("kobold", "k", (22,2))
+
+    # single monster low left
+    lvl_gen.add_monster("kobold", "k", (5,18))
+    lvl_gen.add_goal_pos((16,12))
+    
     return lvl_gen
 
 def generate_env():
@@ -180,6 +217,7 @@ def generate_env():
                observation_keys=("chars", "pixel", "blstats", "message"), 
                des_file = map.get_des(),
                actions = OTHER_ACTIONS,
+               autopickup = True,   
                ) 
     return env
 

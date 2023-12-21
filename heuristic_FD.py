@@ -12,49 +12,64 @@ DEF_WEAPON_WEIGHT = 10
 DEF_MONSTER_WEIGHT = 5
 DEF_EXIT_WEIGHT = 1
 
+#Weapon mode weights
+WEAPON_WEAPON_WEIGHT = 0
+WEAPON_MONSTER_WEIGHT = 10
+WEAPON_EXIT_WEIGHT = 1
+
 # Danger mode weights
-DANGER_WEAPON_WEIGHT = 10 
+DANGER_WEAPON_WEIGHT = 0 
 DANGER_MONSTER_WEIGHT = -10 # with negative weights the agent will try to avoid the monsters
 DANGER_EXIT_WEIGHT = 1
 
-def heuristic_fd(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp: int):
-    """
-    Calcola un'euristica personalizzata tenendo conto della sequenza di azioni: raccogliere l'arma, uccidere i mostri e raggiungere l'uscita.
 
-    Args:
-    - game_map: Lista di tuple rappresentante la griglia con informazioni su mostri, armi, giocatore e uscita.
-    - move: Tupla (x, y) rappresentante le coordinate della prossima mossa.
-    - goal: Tupla (x, y) rappresentante le coordinate dell'obiettivo (uscita).
-
-    Returns:
-    - int: Valore dell'euristica come intero.
-    """
+def heuristic_fd(game_map: np.ndarray, 
+                move: Tuple[int, int], 
+                end_target: Tuple[int, int], 
+                hp_percent: int,
+                weapon_in_hand: bool):
 
     weapon_location = get_weapon_location(game_map) 
     monster_location = get_monster_location(game_map) 
-    inf = 999999999 # infinity
-    
+    inf = 999 # infinity
+
     # distance from the exit
     target_distance = manhattan_distance(move, end_target)
-
-    # if the next move is the target but there are monsters alive, the agent cannot exit the room
-    if monster_location and move == end_target:
-        return inf
     
-    if hp<8: #if the agent has less then half hp, danger mode is activated
+    weight_dictionary = {
+        "weapon": DEF_WEAPON_WEIGHT,
+        "monster": DEF_MONSTER_WEIGHT,
+        "exit": DEF_EXIT_WEIGHT
+    }
+
+    if not(weapon_in_hand) and hp_percent < 0.5  : #if the agent has not a weapon and has less than 50% hp
         weight_dictionary = {
             "weapon": DANGER_WEAPON_WEIGHT,
             "monster": DANGER_MONSTER_WEIGHT,
             "exit": DANGER_EXIT_WEIGHT
         }
         #print("DANGER MODE") # debug
-    else: # normal mode if the agent has more than half hp
+    elif weapon_in_hand and hp_percent > 0.5: #if the agent has more than half hp
+        weight_dictionary = {
+            "weapon": WEAPON_WEAPON_WEIGHT,
+            "monster": WEAPON_MONSTER_WEIGHT,
+            "exit": WEAPON_EXIT_WEIGHT
+        }
+        #print("WEAPON MODE") # debug
+    elif weapon_in_hand and hp_percent < 0.4: #if the agent has a weapon but has less than 40% hp
+        weight_dictionary = {
+            "weapon": DANGER_WEAPON_WEIGHT,
+            "monster": DANGER_MONSTER_WEIGHT,
+            "exit": DANGER_EXIT_WEIGHT
+        }
+        #print("DANGER WEAPON MODE") # debug
+    elif not(weapon_in_hand) and hp_percent > 0.5: #if the agent has not a weapon but has more than half hp
         weight_dictionary = {
             "weapon": DEF_WEAPON_WEIGHT,
             "monster": DEF_MONSTER_WEIGHT,
             "exit": DEF_EXIT_WEIGHT
         }
-        #print("NORMAL MODE") # debug
+        #print("DEFAULT MODE") # debug
     
     # distance from the weapon, the agents will try to pick up the nearest weapon
     min_weapon = inf
@@ -79,5 +94,8 @@ def heuristic_fd(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
         weight_dictionary["monster"] * min_monster +
         weight_dictionary["exit"] * target_distance 
     )
+
+    #print("Current position: ", get_player_location(game_map)) # debug
+    #print("Move: ", move, "Heuristic score: ", weighted_heuristic) # debug
 
     return int(weighted_heuristic)
