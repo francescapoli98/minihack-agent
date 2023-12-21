@@ -113,12 +113,12 @@ def actions_from_path(start: Tuple[int, int], path: List[Tuple[int, int]]) -> Li
     return actions
 
 def get_best_move(game_map: np.ndarray, 
-                  current_position: Tuple[int, int],
-                  end_target: Tuple[int, int],
-                  heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
-                  hp_percent: int,
-                  weapon_in_hand: bool
-                 ) -> Tuple[int, int]: 
+                    current_position: Tuple[int, int],
+                    end_target: Tuple[int, int],
+                    heuristic: Callable[[Tuple[int, int], Tuple[int, int]], int],
+                    hp_percent: int,
+                    weapon_in_hand: bool
+                    ) -> Tuple[int, int]: 
     moves = get_valid_moves(game_map,current_position)
     min = float('inf')
     coord = (0,0)

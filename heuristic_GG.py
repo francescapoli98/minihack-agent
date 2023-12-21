@@ -9,16 +9,16 @@ DISTANCE_MIN = 1
 DISTANCE_MAX = 18
 NEAR_MONSTER_MIN = 1
 # valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
-BRAVE_PLAYER = 0
+BRAVE_PLAYER = 0.2
 
 # posizioni degli angoli della mappa  
 ANGLES = [(1,30),(1,49),(20,30),(20,49)]
-
+REAL_ANGELS = [(2,31),(2,48),(19,31),(19,48)]
 # range angolare per cui si considera che il player è circondato
-TRAP_RANGE=math.pi/4 #! da definire
+TRAP_RANGE=math.pi/4 
 
 # distanza massima per cui si considerano i mostri attorno al player
-TRAP_DISTANCE=4 #! da definire
+TRAP_DISTANCE=4 
 
 
 
@@ -70,7 +70,7 @@ class MonsterInfo:
 
 
 
-def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int):
+def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int,weapon_in_hand: bool) -> float:
 
     # imposta il target uguale al target finale di default (scale della mappa)
     target = end_target
@@ -91,8 +91,9 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
 
 
     # controlla se il player ha abbastanza vita per combattere un mostro
-    if BRAVE_PLAYER <= hp_rate and len(list_monsters) > 0:
+    if BRAVE_PLAYER <= (1-hp_rate) and len(list_monsters) > 0:
         #strategia di fuga in caso l'agente è circondato dai mostri (controllare il caso in cui il player è circondato da 1 mostro nell'angolo)
+        
         if is_trap(current_position,info_monsters):
             print("trap",end="")
             max_monsters_distance=0
@@ -106,9 +107,17 @@ def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[
             return score(move,target,info_monsters)
         
         near_monster = nearest_monster(info_monsters)
-        if near_monster.distance < 3:
+        if near_monster.distance < 2.8:
+            if move in REAL_ANGELS:
+                return math.inf
+            sum=1
+            for info_monster in info_monsters:
+                if info_monster.position!=target:
+                    sum+=(DISTANCE_MAX-euclidean_distance(move,info_monster.position))
             print("near monster", end="")
-            return -euclidean_distance(move, near_monster.position)
+            return -math.ceil(euclidean_distance(move,near_monster.position)) + (normalize(sum,0,(DISTANCE_MAX-1)*len(info_monsters)))
+                
+
 
 
         # cerca di scappare dai mostri evitando di restare intrappolato in un angolo della mappa
@@ -171,18 +180,15 @@ def normalize(value: int, min_val: int, max_val: int) -> float:
 
 
 
-def score(player_position:Tuple[int, int],target:Tuple[int, int], info_monsters:[MonsterInfo]) -> float:
+def score(move:Tuple[int, int],target:Tuple[int, int], info_monsters:[MonsterInfo]) -> float:
     if len(info_monsters)==0:
-        return euclidean_distance(player_position,target)
+        return euclidean_distance(move,target)
     
     sum=1
     for info_monster in info_monsters:
         if info_monster.position!=target:
-            sum+=info_monster.distance
-
-    return euclidean_distance(player_position,target) # - (sum/len(info_monsters)-1)
-        
-
+            sum+=(DISTANCE_MAX-euclidean_distance(move,info_monster.position))
+    return math.ceil(euclidean_distance(move,target)) + (normalize(sum,0,(DISTANCE_MAX-1)*len(info_monsters)))                        
 
 
 def near_monsters(cell: Tuple[int, int], list_monsters: [Tuple[int, int]]):
