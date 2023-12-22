@@ -214,11 +214,11 @@ def generate_map():
 
 def generate_env():
     env =  gym.make("MiniHack-Skill-Custom-v0", 
-               observation_keys=("chars", "pixel", "blstats", "message"), 
-               des_file = map.get_des(),
-               actions = OTHER_ACTIONS,
-               autopickup = True,   
-               ) 
+                observation_keys=("chars", "pixel", "blstats", "message"), 
+                des_file = map.get_des(),
+                actions = OTHER_ACTIONS,
+                autopickup = True,   
+                ) 
     return env
 
 map = generate_map()
