@@ -131,7 +131,7 @@ def get_best_move(game_map: np.ndarray,
 
 def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
     display.display(plt.gcf())
-    time.sleep(0.7)
+    time.sleep(0.5)
     display.clear_output(wait=True)
     image.set_data(game_map['pixel'][:, 300:975])      
     #fine stampa
@@ -193,7 +193,7 @@ def generate_map():
 
     lvl_gen = LevelGenerator(map = map_layout)
     # starting position
-    lvl_gen.set_start_pos((6, 2))
+    lvl_gen.set_start_pos((5, 2))
 
     # dagger position
     lvl_gen.add_object("dagger", ")", (18,18))

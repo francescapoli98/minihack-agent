@@ -12,10 +12,9 @@ DISTANCE_MIN = 1
 DISTANCE_MAX = 18
 NEAR_MONSTER_MIN = 1
 # valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
-BRAVE_PLAYER = 0
+BRAVE_PLAYER = 0.2
 # posizioni degli angoli della mappa  
-ANGLES = [(1,30),(1,49),(20,30),(20,49)]
-REAL_ANGELS = [(2,31),(2,48),(19,31),(19,48)]
+ANGLES = [(1,33),(18,33),(1,50),(18,50)]
 # range angolare per cui si considera che il player è circondato
 TRAP_RANGE=math.pi/4 
 # distanza massima per cui si considerano i mostri attorno al player
@@ -251,9 +250,8 @@ class Heuristic_utils:
     
     @staticmethod
     def escape_trap(move:Tuple[int,int], info_monsters:List[MonsterInfo]):
-        if move in REAL_ANGELS:
+        if move in ANGLES:
             return math.inf
-        
         max_monster_distance=0
         for angle in ANGLES:
             new_distance=0
@@ -267,8 +265,7 @@ class Heuristic_utils:
     
     @staticmethod
     def escape_near_monster(move:Tuple[int,int], near_monster:Tuple[int,int], info_monsters:List[MonsterInfo]):
-        if move in REAL_ANGELS:
-            print("angle")
+        if move in ANGLES:
             return math.inf
         sum=1
         for info_monster in info_monsters:
