@@ -196,6 +196,7 @@ def generate_map():
     lvl_gen.set_start_pos((5, 2))
 
     # dagger position
+    #lvl_gen.add_object("spear", ")", (18,18))
     lvl_gen.add_object("dagger", ")", (18,18))
 
     # group of monster low right
@@ -217,9 +218,17 @@ def generate_env():
                 observation_keys=("chars", "pixel", "blstats", "message"), 
                 des_file = map.get_des(),
                 actions = OTHER_ACTIONS,
-                autopickup = True,   
                 ) 
     return env
+
+def hp_plots(hp_history: np.array, moves_history: np.array):
+    # Plot the HP history
+    plt.figure()
+    plt.plot(moves_history, hp_history)
+    plt.xlabel('Time')
+    plt.ylabel('HP')
+    plt.title('HP history')
+    plt.show()
 
 map = generate_map()
 env = generate_env()
