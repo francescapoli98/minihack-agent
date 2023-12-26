@@ -13,3 +13,6 @@ __pycache__
 
 # ignora i file di configurazione di vscode
 .vscode
+
+#ignora il file con random agent
+random_agent.ipynb

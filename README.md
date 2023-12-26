@@ -1,37 +1,22 @@
-# AIF-Project
+# SmasHack: gotta smash 'em all! 👾
 
-## Struttura progetto
+**Developed by:** the Hackward Hackers - [Daniele Bedini](https://github.com/danielebedini), [Francesca Poli](https://github.com/francescapoli98), [Gioele Modica](https://github.com/pavomod) and [Giovanni Criscione](https://github.com/gcriscione) \
+**Course:** Artificial Intelligence Fundamentals, a.y. 2023/2024 \
+**Master degree:** Computer Science, Artificial Intelligence curriculum 
 
-Intanto sappiamo che:
-- Ci piace l'idea di fare 2 agenti (algoritmi comparati ✔️)
-<!--
-### Proposta 1
-- Agente che gioca e apprende la mappa (sconosciuta) e deve reagire o evitare le trappole dell'altro
-- Agente "antagonista" che cambia dinamicamente la mappa inserendo trappole etc.
+<img src="https://apre.it/wp-content/uploads/2021/01/logo_uni-pisa.png" width="200" />
 
-### Proposta 2
-- 2 agenti che gareggiano a chi finisce prima il gioco
-- Differenze tra i 2 agenti (es. vantaggi diversi)
-- Oppure, sono antagonisti tra loro: entrambi possono mettere un tot di trappole
-- O anche: uno inizia prima e ha vantaggio, e l'altro invece può mettere trappole (e variazioni sul tema)
+The project is based on an intelligent agent that plays a custom level in the Nethack rogue game. The agent is inserted into a room, which is the enviroment it has to percept. The agent has to firstly pick up and wield a weapon, then kill all the monsters and, finally, finish the level exiting through the stairs and win.
 
-### Proposta 3
-- Due agenti diversi che partono insieme ma con due algoritmi diversi (es. BFS e DFS) ➡️ magari hanno euristiche diverse
-- Consideriamo a livello statistico chi performa meglio in base al tipo di mappa 
+The agent's aim is to use a searching algorithm to reach the desired targets one at a time, following the order previously listed: weapon, monsters, stairs. At each step of the agent, the heuristic will evaluate the best possible move, taking into consideration the targets' order and placement, and the agent's health level represented as hit points: the heuristic needs to predict all the possible scenarios and choose the one that seems to be the most convenient at the moment in order to take a step in one direction. 
 
-Consideriamo che **anche l'agente antagonista può essere ucciso dai mostri**
+We solved this task by developing two different heuristics: 
+- **Class-based heuristic:** the agent is told exaclty what to do considering the percepts received in input and fed to the heuristic function in a more direct approach.
+- **Weighted sum-based heuristic:** the agent is guided by a system of priorities based off the percepts received in input, that converge into a weighted summation of all the targets' importance.
 
-Incrementare difficoltà: ci mettiamo più antagonisti
--->
-### Idea 1
-- 2 agenti con **euristiche diverse** su istanze separate della stessa mappa
-- Più livelli!
-- Statistiche sui risultati 
-### Idea 2 (per ora favorita ✔️)
-- Agente1 **antagonista** che gioca in una mappa non modificabile 
-- Agente1 aggiunge **modifiche alla mappa in cui giocherà agente2** per ostacolarlo
-- Agente1 parte prima di agente2 
-*Non è possibile far sì che si ostacolino a vicenda, c'è agente antagonista e agente protagonista. Però, dopo ogni livello si ostacolano*
-Possiamo partire con questa situazione: agente1 **non** gioca, crea solo la mappa. Quando agente2 vince, gioca agente1 e agente2 diventa l'antagonista.
-- Fine gioco: un agente perde
 
+## Repository structure          
+ ┣ 📄 `heuristic_FD.py`    // python file containing the weighted sum heuristic          
+ ┣ 📄 `heuristic_GG.py`    // python file containing the direct heuristic    
+ ┣ 📜 `report.ipynb`       // jupyter notebook with the in-depth explanation, compared results and statistics about our work \
+ ┗ 📄 `utils.py`           // python support file containing all the default background functions    
