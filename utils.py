@@ -131,7 +131,7 @@ def get_best_move(game_map: np.ndarray,
 
 def plot_map(game_map: np.ndarray,image: AxesImage) -> np.ndarray:
     display.display(plt.gcf())
-    time.sleep(0.5)
+    #time.sleep(0.5)
     display.clear_output(wait=True)
     image.set_data(game_map['pixel'][:, 300:975])      
     #fine stampa
@@ -221,13 +221,24 @@ def generate_env():
                 ) 
     return env
 
-def hp_plots(hp_history: np.array, moves_history: np.array):
-    # Plot the HP history
-    plt.figure()
-    plt.plot(moves_history, hp_history)
+def hp_plots(hp_history_1: np.array, moves_history_1: np.array, hp_history_2: np.array, moves_history_2: np.array, brave_threshold: int):
+    fig = plt.figure()
+    fig.suptitle('HP History', fontsize=12, fontweight='bold')
+    # Plot the HP history for the first set of data (curve 1)
+    plt.plot(moves_history_1, hp_history_1, label='Heuristic #1', color='blue')
+
+    # Plot the HP history for the second set of data (curve 2)
+    plt.plot(moves_history_2, hp_history_2, label='Heuristic #2', color='red')
+
+    # Set labels and title
     plt.xlabel('Time')
     plt.ylabel('HP')
-    plt.title('HP history')
+    plt.title('Brave threshold: ' + str(brave_threshold))
+
+    # Add legend
+    plt.legend()
+
+    # Show the plot
     plt.show()
 
 map = generate_map()
