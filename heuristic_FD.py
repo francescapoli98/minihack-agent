@@ -25,8 +25,8 @@ DANGER_MONSTER_WEIGHT = -10 # with negative weights the agent will try to avoid 
 DANGER_EXIT_WEIGHT = 1
 
 # Brave thresholds
-DEFAULT_BRAVE_THRESHOLD = 0.5
-WEAPON_BRAVE_THRESHOLD = DEFAULT_BRAVE_THRESHOLD + 0.1
+DEFAULT_BRAVE_THRESHOLD = 0.8
+WEAPON_BRAVE_THRESHOLD = DEFAULT_BRAVE_THRESHOLD
 
 def heuristic_fd(game_map: np.ndarray, 
                 move: Tuple[int, int], 

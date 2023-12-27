@@ -16,19 +16,19 @@ def game():
     
 def start_game(heuristic: Callable[[np.ndarray, Tuple[int, int], Tuple[int, int], int, bool], int]):
     state = env.reset()
-    env.render() 
-    print(env.actions)
+    #env.render() 
+    #print(env.actions)
 
     game_map = state['chars']
     game = state['pixel']
-    plt.imshow(state['pixel'])
+    #plt.imshow(state['pixel'])
 
     start = get_player_location(game_map)
     end_target = get_target_location(game_map)
     weapons = get_weapon_location(game_map)
     print("Agent position:", start)
     print("Target position:", end_target)
-    print("Monster position:", get_monster_location(game_map))
+    print("Monster position:", get_monster_location(game_map), end="\n\n")
 
     player_moves = [start]
     image = plt.imshow(game[:, 300:975])

@@ -12,7 +12,7 @@ DISTANCE_MIN = 1
 DISTANCE_MAX = 18
 NEAR_MONSTER_MIN = 1
 # valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
-BRAVE_PLAYER = 0.2
+BRAVE_PLAYER = 0.8
 # posizioni degli angoli della mappa  
 ANGLES = [(1,33),(18,33),(1,50),(18,50)]
 # range angolare per cui si considera che il player è circondato
