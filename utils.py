@@ -213,6 +213,52 @@ def generate_map():
     
     return lvl_gen
 
+# def generate_map():
+#     map_layout = """
+#     --------------------
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     |..................|
+#     --------------------
+#     """
+
+#     lvl_gen = LevelGenerator(map = map_layout)
+#     # starting position
+#     lvl_gen.set_start_pos((10, 10))
+
+#     # dagger position
+#     #lvl_gen.add_object("spear", ")", (15,15))
+#     lvl_gen.add_object("dagger", ")", (17,12))
+
+#     # group of monster low right
+#     lvl_gen.add_monster("kobold zombie", "Z", (8,9))
+#     lvl_gen.add_monster("kobold zombie", "Z", (2,10))
+
+#     # group of monster high right
+#     lvl_gen.add_monster("kobold zombie", "Z", (10,8))
+#     lvl_gen.add_monster("kobold zombie", "Z", (11,12))
+
+#     # single monster low left
+#     lvl_gen.add_monster("kobold zombie", "Z", (14,10))
+#     lvl_gen.add_goal_pos((16,12))
+    
+#     return lvl_gen
+    
 def generate_env():
     env =  gym.make("MiniHack-Skill-Custom-v0", 
                 observation_keys=("chars", "pixel", "blstats", "message"), 
