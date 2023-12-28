@@ -234,7 +234,7 @@ def hp_plots(hp_history_1: np.array, moves_history_1: np.array, hp_history_2: np
     plt.xlabel('Time')
     plt.ylabel('HP')
     plt.title('Brave threshold: ' + str(brave_threshold))
-
+    plt.axhline(y=brave_threshold, color='grey', linestyle='--', label='Brave threshold')
     # Add legend
     plt.legend()
 

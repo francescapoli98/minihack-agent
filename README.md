@@ -15,8 +15,9 @@ We solved this task by developing two different heuristics:
 - **Weighted sum-based heuristic:** the agent is guided by a system of priorities based off the percepts received in input, that converge into a weighted summation of all the targets' importance.
 
 
-## Repository structure          
+## Repository structure 
+ ┣ 📄 `game.py`            // python file containing the gameplay function   
  ┣ 📄 `heuristic_FD.py`    // python file containing the weighted sum heuristic          
  ┣ 📄 `heuristic_GG.py`    // python file containing the direct heuristic    
- ┣ 📜 `report.ipynb`       // jupyter notebook with the in-depth explanation, compared results and statistics about our work \
+ ┣ 📜 `report.ipynb`       // jupyter notebook with in-depth explanations, compared results and statistics  \
  ┗ 📄 `utils.py`           // python support file containing all the default background functions    

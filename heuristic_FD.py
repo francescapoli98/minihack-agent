@@ -24,8 +24,12 @@ DANGER_WEAPON_WEIGHT = 0
 DANGER_MONSTER_WEIGHT = -10 # with negative weights the agent will try to avoid the monsters
 DANGER_EXIT_WEIGHT = 1
 
+#TESTING DIFFERENT WEIGHTS
+MODERATOR = 0.50
+
+
 # Brave thresholds
-DEFAULT_BRAVE_THRESHOLD = 0.8
+DEFAULT_BRAVE_THRESHOLD = 0.5
 WEAPON_BRAVE_THRESHOLD = DEFAULT_BRAVE_THRESHOLD
 
 def heuristic_fd(game_map: np.ndarray, 
@@ -45,9 +49,9 @@ def heuristic_fd(game_map: np.ndarray,
     target_distance = manhattan_distance(move, end_target)
     
     weight_dictionary = {
-        "weapon": DEF_WEAPON_WEIGHT,
-        "monster": DEF_MONSTER_WEIGHT,
-        "exit": DEF_EXIT_WEIGHT
+        "weapon": DEF_WEAPON_WEIGHT*MODERATOR,
+        "monster": DEF_MONSTER_WEIGHT*MODERATOR,
+        "exit": DEF_EXIT_WEIGHT*MODERATOR
     }
 
     if not(weapon_in_hand) and hp_percent < (1-DEFAULT_BRAVE_THRESHOLD): #if the agent has not a weapon and has less than 50% hp
@@ -66,16 +70,16 @@ def heuristic_fd(game_map: np.ndarray,
         #print("WEAPON MODE") # debug
     elif weapon_in_hand and hp_percent < (1-WEAPON_BRAVE_THRESHOLD): #if the agent has a weapon but has less than 40% hp
         weight_dictionary = {
-            "weapon": DANGER_WEAPON_WEIGHT,
-            "monster": DANGER_MONSTER_WEIGHT,
-            "exit": DANGER_EXIT_WEIGHT
+            "weapon": DANGER_WEAPON_WEIGHT*MODERATOR,
+            "monster": DANGER_MONSTER_WEIGHT*MODERATOR,
+            "exit": DANGER_EXIT_WEIGHT*MODERATOR
         }
         #print("DANGER WEAPON MODE") # debug
     elif not(weapon_in_hand) and hp_percent > (1-DEFAULT_BRAVE_THRESHOLD): #if the agent has not a weapon but has more than half hp
         weight_dictionary = {
-            "weapon": DEF_WEAPON_WEIGHT,
-            "monster": DEF_MONSTER_WEIGHT,
-            "exit": DEF_EXIT_WEIGHT
+            "weapon": DEF_WEAPON_WEIGHT*MODERATOR,
+            "monster": DEF_MONSTER_WEIGHT*MODERATOR,
+            "exit": DEF_EXIT_WEIGHT*MODERATOR
         }
         #print("DEFAULT MODE") # debug
     
