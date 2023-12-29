@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import *
-from heuristic_FD import heuristic_fd, DEFAULT_BRAVE_THRESHOLD
+from heuristic_FD import heuristic_fd
 from heuristic_GG import heuristic_gg, BRAVE_PLAYER
 
 def game():
@@ -12,7 +12,7 @@ def game():
     hp_history_gg, moves_history_gg = start_game(heuristic_gg)
 
     # plot hp history
-    hp_plots(hp_history_fd, moves_history_fd, hp_history_gg, moves_history_gg, DEFAULT_BRAVE_THRESHOLD)
+    hp_plots(hp_history_fd, moves_history_fd, hp_history_gg, moves_history_gg, round(1-BRAVE_PLAYER,1))
     
 def start_game(heuristic: Callable[[np.ndarray, Tuple[int, int], Tuple[int, int], int, bool], int]):
     state = env.reset()

@@ -1,6 +1,6 @@
 import numpy as np
 from utils import *
-
+from heuristic_GG import BRAVE_PLAYER
 #get_monster_location, get_weapon_location, Tuple, manhattan_distance
 
 # This heuristic gives priority to the weapons first, then to the monsters
@@ -29,8 +29,8 @@ MODERATOR = 0.50
 
 
 # Brave thresholds
-DEFAULT_BRAVE_THRESHOLD = 0.5
-WEAPON_BRAVE_THRESHOLD = DEFAULT_BRAVE_THRESHOLD
+DEFAULT_BRAVE_THRESHOLD = BRAVE_PLAYER
+WEAPON_BRAVE_THRESHOLD = DEFAULT_BRAVE_THRESHOLD + 0.1
 
 def heuristic_fd(game_map: np.ndarray, 
                 move: Tuple[int, int], 
