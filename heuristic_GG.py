@@ -11,7 +11,7 @@ ETA_NEAR_MONSTERS_TARGET = 0.5              # weight of near monsters
 DISTANCE_MIN = 1                            # minimum distance
 DISTANCE_MAX = 18                           # maximum distance
 NEAR_MONSTER_MIN = 1                        # minimum number of monster
-BRAVE_PLAYER = 0.7                          # brave of the player (value between 0 and 1)
+BRAVE_PLAYER = 0.6                          # brave of the player (value between 0 and 1)
 ANGLES = [(1,33),(18,33),(1,50),(18,50)]    # position of angles in the map
 TRAP_RANGE=math.pi/4                        # range to consider a trap
 TRAP_DISTANCE=4                             # distance to consider monsters
@@ -60,62 +60,69 @@ class MonsterInfo:
 
 
 
-# function of heuristic that return a score for the move
+# heuristic function that return a score for the move
 def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int, weapon_in_hand: bool) -> float:
-
+    # initial target is the end target
     target = end_target
 
-    # prende la posizione di tutti i mostri presenti nella mappa
+    # get the position of the monsters, the player and the weapons
     monsters_position: List[Tuple[int, int]]= get_monster_location(game_map)
     player_position: Tuple[int, int] = get_player_location(game_map)
     weapons: List[Tuple[int, int]] = get_weapon_location(game_map)
 
-
-    # se la cella considerata è il target finale e ci sono mostri nella mappa, ritorna infinito (non è possibile raggiungere il target finale se ci sono mostri)
+    # if the player is in the end target and there are monsters, the score is infinite
     if move == end_target and len(monsters_position)!=0:
         return math.inf
     
-    # per ongi mostro calcola le seguenti informazioni: distanza dal player e numero mostri vicini
+    # list with information about the monsters
     info_monsters: List[MonsterInfo] = Heuristic_utils.get_info_monsters(player_position, monsters_position)
 
-
-    # verifica se il player è abbastanza coraggio per affrontare un combattimento
+    # if the player is not brave and there are monsters, the player will escape
     if BRAVE_PLAYER <= (1-hp_rate) and len(monsters_position) > 0:
-
-        #strategia di fuga in caso l'agente è circondato dai mostri (controllare il caso in cui il player è circondato da 1 mostro nell'angolo)
+        
+        # check if the player is in a trap
         if Heuristic_utils.is_trap(player_position,info_monsters):
             return Heuristic_utils.escape_trap(move,info_monsters)        
                 
-        #se c'è un mostro molto vicino (prossimo ad accatare il player) scappa da quel mostro
+        # check if there is a monster near the player
         nearest_monster = Heuristic_utils.nearest_monster(info_monsters)
         if nearest_monster.distance < 3:
             return Heuristic_utils.escape_near_monster(move, nearest_monster, info_monsters)
 
-        # cerca di scappare dai mostri (da peso maggiore ai mostri più vicini)
+        # default strategy to escape from the monsters
         return Heuristic_utils.default_escape(monsters_position, player_position, move)
 
     
-    # se ci sono mostri nella mappa, individua fra essi il target migliore
+    # if the player brave and there are monsters, the player will fight
     if len(monsters_position) > 0:
-        # caso in cui prende l'arma
+        # the player go to the weapon
         if not weapon_in_hand and len(weapons) > 0:
             target = Heuristic_utils.best_weapon(player_position, weapons)
 
-        # caso in cui combatte i mostri
+        # the player fight the monsters
         else:
-            # seleziona fra tutti i mostri quello con cui ingaggiare un combattimento
+            # select the best monster target to fight
             target = Heuristic_utils.best_monster_to_fight(info_monsters)
 
-
+    #  the player go to the target
     return Heuristic_utils.score(move,target,info_monsters)
 
 
 
 
-
+# ------------------------------ Heurstic UTILS ------------------------------
 class Heuristic_utils:
     @staticmethod
     def nearest_monster(info_monsters: [MonsterInfo]) -> MonsterInfo: 
+        """
+            Finds the nearest monster from a list of monster information.
+
+            Args:
+                info_monsters (list): A list of MonsterInfo objects representing the information of each monster.
+
+            Returns:
+                MonsterInfo: The MonsterInfo object representing the nearest monster.
+        """
         min = math.inf
         near_monster = None
         for info_monster in info_monsters:
@@ -146,6 +153,17 @@ class Heuristic_utils:
     
     @staticmethod
     def score(move:Tuple[int, int],target:Tuple[int, int], info_monsters:[MonsterInfo]) -> float:
+        """
+        Calculates the score for a given move based on the target position and information about monsters.
+
+        Parameters:
+        move (Tuple[int, int]): The coordinates of the move.
+        target (Tuple[int, int]): The coordinates of the target position.
+        info_monsters ([MonsterInfo]): A list of MonsterInfo objects containing information about the monsters.
+
+        Returns:
+        float: The calculated score for the move.
+        """
         if len(info_monsters)==0:
             return euclidean_distance(move,target)
         
@@ -197,32 +215,44 @@ class Heuristic_utils:
             if monster.distance <= TRAP_DISTANCE:
                 info_monsters_reduced.append(monster)
             
-        # Verifica che ci siano almeno min_monsters mostri nella lista
+        # check if there are at least 2 monsters
         if len(info_monsters_reduced) < 2:
             return False
         
-        # Calcola la distanza angolare tra la tua posizione e ciascun mostro
+        # calculate the angle between the player and the monsters
         angles = [math.atan2(monster.position[1] - player_position[1], monster.position[0] - player_position[0]) for monster in info_monsters_reduced]
 
-        # Ordina gli angoli in senso orario
+        # sort the angles
         angles.sort()
 
-        # Verifica se ci sono almeno min_monsters non allineati entro il trap_range
+        # check the interval between the angles
         count = 0  
         for i in range(1, len(angles)):
             if abs(angles[i] - angles[i - 1]) > TRAP_RANGE:
                 count += 1
             if count >= 2:
+                # return trap
                 return True
 
-        # Controlla l'intervallo tra l'ultimo angolo e il primo
+        # check the interval between the first and the last angle
         if abs(angles[0] + 2 * math.pi - angles[-1]) > TRAP_RANGE:
             count += 1
-
+            
+        # return True if there are at least 2 intervals
         return count >= 2
 
     @staticmethod
     def get_info_monsters(player_position:Tuple[int,int],monsters_position:List[Tuple[int,int]]) -> List[MonsterInfo]: 
+        """
+        Get information about monsters.
+
+        Args:
+            player_position (Tuple[int, int]): The position of the player.
+            monsters_position (List[Tuple[int, int]]): The positions of the monsters.
+
+        Returns:
+            List[MonsterInfo]: A list of MonsterInfo objects containing information about each monster.
+        """
         info_monsters: List[MonsterInfo] = []
         for monster in monsters_position:
             info_monsters.append(
@@ -232,6 +262,16 @@ class Heuristic_utils:
     
     @staticmethod
     def best_weapon(player_position:Tuple[int, int], weapons:[Tuple[int, int]]):
+        """
+        Finds the best weapon for the player based on the player's position and the available weapons.
+
+        Args:
+            player_position (Tuple[int, int]): The position of the player.
+            weapons ([Tuple[int, int]]): A list of weapon positions.
+
+        Returns:
+            Tuple[int, int]: The position of the best weapon.
+        """
         min = math.inf
         best_weapon = weapons[0]
         for weapon in weapons:
@@ -245,6 +285,16 @@ class Heuristic_utils:
     
     @staticmethod
     def escape_trap(move:Tuple[int,int], info_monsters:List[MonsterInfo]):
+        """
+        Calculates the heuristic score for escaping a trap.
+
+        Args:
+            move (Tuple[int,int]): The move to evaluate.
+            info_monsters (List[MonsterInfo]): List of information about the monsters.
+
+        Returns:
+            float: The heuristic score for the move.
+        """
         if move in ANGLES:
             return math.inf
         max_monster_distance=0
@@ -260,6 +310,17 @@ class Heuristic_utils:
     
     @staticmethod
     def escape_near_monster(move:Tuple[int,int], near_monster:Tuple[int,int], info_monsters:List[MonsterInfo]):
+        """
+        Calculates the escape score for a given move based on the distance from the nearest monster and the positions of other monsters.
+
+        Args:
+            move (Tuple[int, int]): The move to evaluate.
+            near_monster (Tuple[int, int]): The position of the nearest monster.
+            info_monsters (List[MonsterInfo]): A list of MonsterInfo objects containing information about other monsters.
+
+        Returns:
+            float: The escape score for the move.
+        """
         if move in ANGLES:
             return math.inf
         sum=1
@@ -269,6 +330,17 @@ class Heuristic_utils:
     
     @staticmethod
     def default_escape(monsters_position:List[Tuple[int,int]], player_position:Tuple[int,int], move:Tuple[int,int]):
+        """
+        Calculates the escape score for a given move based on the positions of monsters and the player.
+
+        Parameters:
+        monsters_position (List[Tuple[int,int]]): A list of tuples representing the positions of monsters.
+        player_position (Tuple[int,int]): A tuple representing the position of the player.
+        move (Tuple[int,int]): A tuple representing the move to be evaluated.
+
+        Returns:
+        int: The escape score for the move.
+        """
         sum = 0
         for monster in monsters_position:
             sum -= euclidean_distance(move, monster) * ((DISTANCE_MAX - euclidean_distance(player_position, monster)))
@@ -276,12 +348,20 @@ class Heuristic_utils:
     
     @staticmethod
     def best_monster_to_fight(info_monsters:List[MonsterInfo]):
+        """
+        Finds the best monster to fight based on a heuristic calculation.
+
+        Args:
+            info_monsters (List[MonsterInfo]): A list of MonsterInfo objects containing information about each monster.
+
+        Returns:
+            Tuple[int, int]: The position of the best monster to fight.
+        """
         NEAR_MONSTER_MAX = len(info_monsters)
         min = math.inf
         for monster in info_monsters:
             weight = (Heuristic_utils.normalize(monster.near_monsters, NEAR_MONSTER_MIN, NEAR_MONSTER_MAX) * ETA_NEAR_MONSTERS_TARGET) + Heuristic_utils.normalize(monster.distance, DISTANCE_MIN, DISTANCE_MAX)
 
-            # setta come target il mostro che minimizza (distanza e numero di mostri vicini)
             if weight < min:
                 min = weight
                 target = monster.position

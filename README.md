@@ -16,7 +16,6 @@ We solved this task by developing two different heuristics:
 
 
 ## Repository structure 
- ┣ 📄 `game.py`            // python file containing the gameplay function   
  ┣ 📄 `heuristic_FD.py`    // python file containing the weighted sum heuristic          
  ┣ 📄 `heuristic_GG.py`    // python file containing the direct heuristic    
  ┣ 📜 `report.ipynb`       // jupyter notebook with in-depth explanations, compared results and statistics  \
