@@ -6,19 +6,15 @@ from typing import List, Tuple
 
 
 # ------------------------------ CONSTANT ------------------------------
-NEAR_MONSTERS_RANGE = 4
-ETA_NEAR_MONSTERS_TARGET = 0.5
-DISTANCE_MIN = 1
-DISTANCE_MAX = 18
-NEAR_MONSTER_MIN = 1
-# valore compreso tra 0 e 1 (percentuale di vita minima per cui il player è disposto a combattere un mostro)
-BRAVE_PLAYER = 0.7
-# posizioni degli angoli della mappa  
-ANGLES = [(1,33),(18,33),(1,50),(18,50)]
-# range angolare per cui si considera che il player è circondato
-TRAP_RANGE=math.pi/4 
-# distanza massima per cui si considerano i mostri attorno al player
-TRAP_DISTANCE=4 
+NEAR_MONSTERS_RANGE = 4                     # range to consider a monster dangerous
+ETA_NEAR_MONSTERS_TARGET = 0.5              # weight of near monsters   
+DISTANCE_MIN = 1                            # minimum distance
+DISTANCE_MAX = 18                           # maximum distance
+NEAR_MONSTER_MIN = 1                        # minimum number of monster
+BRAVE_PLAYER = 0.7                          # brave of the player (value between 0 and 1)
+ANGLES = [(1,33),(18,33),(1,50),(18,50)]    # position of angles in the map
+TRAP_RANGE=math.pi/4                        # range to consider a trap
+TRAP_DISTANCE=4                             # distance to consider monsters
 # ------------------------------ ---------- ------------------------------
 
 
@@ -64,10 +60,9 @@ class MonsterInfo:
 
 
 
-
+# function of heuristic that return a score for the move
 def heuristic_gg(game_map: np.ndarray, move: Tuple[int, int], end_target: Tuple[int, int], hp_rate: int, weapon_in_hand: bool) -> float:
 
-    # imposta il target uguale al target finale di default (scale della mappa)
     target = end_target
 
     # prende la posizione di tutti i mostri presenti nella mappa
